@@ -39,6 +39,8 @@ public class QuarkusPlugin implements Plugin<Project> {
     public static final String QUARKUS_BUILD_TASK_NAME = "quarkusBuild";
     public static final String GENERATE_CONFIG_TASK_NAME = "generateConfig";
     public static final String QUARKUS_DEV_TASK_NAME = "quarkusDev";
+
+    @Deprecated
     public static final String BUILD_NATIVE_TASK_NAME = "buildNative";
     public static final String TEST_NATIVE_TASK_NAME = "testNative";
     public static final String QUARKUS_TEST_CONFIG_TASK_NAME = "quarkusTestConfig";
@@ -111,8 +113,13 @@ public class QuarkusPlugin implements Plugin<Project> {
                             .extendsFrom(configurations.findByName(JavaPlugin.TEST_RUNTIME_ONLY_CONFIGURATION_NAME));
 
                     Task testNative = tasks.create(TEST_NATIVE_TASK_NAME, QuarkusTestNative.class);
-                    testNative.dependsOn(buildNative);
+                    testNative.dependsOn(quarkusBuild);
                     testNative.setShouldRunAfter(Collections.singletonList(tasks.findByName(JavaPlugin.TEST_TASK_NAME)));
+
+                    Consumer<QuarkusTestNative> configureTestNativeTask = t -> project.getExtensions().getExtraProperties()
+                            .set("quarkus.package.type", "native");
+                    tasks.withType(QuarkusTestNative.class).forEach(configureTestNativeTask);
+                    tasks.withType(QuarkusTestNative.class).whenTaskAdded(configureTestNativeTask::accept);
 
                     Consumer<Test> configureTestTask = t -> {
                         // Quarkus test configuration task which should be executed before any Quarkus test

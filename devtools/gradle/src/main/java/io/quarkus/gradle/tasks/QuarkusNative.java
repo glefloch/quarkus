@@ -22,6 +22,14 @@ import io.quarkus.bootstrap.model.AppArtifact;
 import io.quarkus.bootstrap.resolver.AppModelResolver;
 import io.quarkus.bootstrap.resolver.AppModelResolverException;
 
+/**
+ * Legacy task for backwards compatibility reasons. This should not be used in new projects
+ *
+ * This has been replaced by setting quarkus.package.type=native in the configuration.
+ *
+ * @deprecated
+ */
+@Deprecated
 public class QuarkusNative extends QuarkusTask {
 
     private boolean reportErrorsAtRuntime = false;
@@ -353,9 +361,9 @@ public class QuarkusNative extends QuarkusTask {
         this.reportExceptionStackTraces = reportExceptionStackTraces;
     }
 
-    @TaskAction
+    @TaskAction()
     public void buildNative() {
-        getLogger().lifecycle("building native image");
+        getLogger().warn("buildNative task is deprecated in favor of quarkusBuild -Dquarkus.package.type=native");
 
         final AppArtifact appArtifact = extension().getAppArtifact();
         final AppModelResolver modelResolver = extension().getAppModelResolver();
