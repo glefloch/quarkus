@@ -116,10 +116,12 @@ public class QuarkusPlugin implements Plugin<Project> {
                     testNative.dependsOn(quarkusBuild);
                     testNative.setShouldRunAfter(Collections.singletonList(tasks.findByName(JavaPlugin.TEST_TASK_NAME)));
 
-                    Consumer<QuarkusTestNative> configureTestNativeTask = t -> project.getExtensions().getExtraProperties()
-                            .set("quarkus.package.type", "native");
-                    tasks.withType(QuarkusTestNative.class).forEach(configureTestNativeTask);
-                    tasks.withType(QuarkusTestNative.class).whenTaskAdded(configureTestNativeTask::accept);
+                    project.getGradle().getTaskGraph().whenReady(taskGraph -> {
+                        if (taskGraph.hasTask(testNative)) {
+                            project.getExtensions().getExtraProperties()
+                                    .set("quarkus.package.type", "native");
+                        }
+                    });
 
                     Consumer<Test> configureTestTask = t -> {
                         // Quarkus test configuration task which should be executed before any Quarkus test
