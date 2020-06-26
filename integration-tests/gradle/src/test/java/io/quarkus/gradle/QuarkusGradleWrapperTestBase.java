@@ -19,6 +19,7 @@ public class QuarkusGradleWrapperTestBase extends QuarkusGradleTestBase {
         List<String> command = new LinkedList<>();
         command.add(getGradleWrapperCommand());
         command.add(GRADLE_NO_DAEMON);
+        command.add("--stacktrace");
         command.addAll(Arrays.asList(args));
         Process p = new ProcessBuilder()
                 .directory(projectDir)

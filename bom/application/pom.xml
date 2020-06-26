@@ -201,6 +201,7 @@
         <webjars-locator-core.version>0.46</webjars-locator-core.version>
         <log4j2-jboss-logmanager.version>1.0.0.Beta1</log4j2-jboss-logmanager.version>
         <avro.version>1.10.0</avro.version>
+        <gradle-tooling.version>6.5</gradle-tooling.version>
     </properties>
 
     <dependencyManagement>
@@ -4288,6 +4289,11 @@
             <dependency>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-bootstrap-maven-resolver</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-bootstrap-gradle-resolver</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -62,36 +62,47 @@ public class QuarkusPrepare extends QuarkusTask {
             final Convention convention = getProject().getConvention();
             JavaPluginConvention javaConvention = convention.findPlugin(JavaPluginConvention.class);
             if (javaConvention != null) {
+                System.out.println("quarkus prepare java convention found");
                 String generateSourcesDir = test ? "quarkus-test-generated-sources" : "quarkus-generated-sources";
                 final SourceSet generatedSources = javaConvention.getSourceSets().create(generateSourcesDir);
                 generatedSources.getOutput().dir(generateSourcesDir);
-
+                System.out.println("generated source output : " + generateSourcesDir);
                 List<Path> paths = new ArrayList<>();
                 generatedSources.getOutput()
                         .filter(f -> f.getName().equals(generateSourcesDir))
                         .forEach(f -> paths.add(f.toPath()));
+                System.out.println("generated source output added ");
                 if (paths.isEmpty()) {
                     throw new GradleException("Failed to create quarkus-generated-sources");
                 }
 
-                getLogger().debug("Will trigger preparing sources for source directory: {} buildDir: {}",
+                getLogger().info("Will trigger preparing sources for source directory: {} buildDir: {}",
                         sourcesDirectories, getProject().getBuildDir().getAbsolutePath());
-                QuarkusClassLoader deploymentClassLoader = appCreationContext.createDeploymentClassLoader();
+                System.out
+                        .println("Will trigger preparing sources for source directory: " + sourcesDirectories + " buildDir: " +
+                                getProject().getBuildDir().getAbsolutePath());
 
+                QuarkusClassLoader deploymentClassLoader = appCreationContext.createDeploymentClassLoader();
+                System.out.println("deployment class loader created");
                 Class<?> codeGenerator = deploymentClassLoader.loadClass(CodeGenerator.class.getName());
+
+                System.out.println("Code generator classs loaded");
                 Optional<Method> initAndRun = Arrays.stream(codeGenerator.getMethods())
                         .filter(m -> m.getName().equals(INIT_AND_RUN))
                         .findAny();
                 if (!initAndRun.isPresent()) {
                     throw new GradleException("Failed to find " + INIT_AND_RUN + " method in " + CodeGenerator.class.getName());
                 }
-
+                System.out.println("invoking init and run method for sources : ");
+                sourcesDirectories.forEach(System.out::println);
                 initAndRun.get().invoke(null, deploymentClassLoader,
                         sourcesDirectories,
                         paths.iterator().next(),
                         buildDir,
                         sourceRegistrar,
                         appCreationContext.getAppModel());
+                System.out.println("model : " + appCreationContext.getAppModel());
+
             }
         } catch (BootstrapException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
             throw new GradleException("Failed to generate sources in the QuarkusPrepare task", e);

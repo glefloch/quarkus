@@ -1,0 +1,13 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        id 'io.quarkus' version '999-SNAPSHOT'
+    }
+}
+rootProject.name='simple-module-project'
+
+include 'common', 'application'

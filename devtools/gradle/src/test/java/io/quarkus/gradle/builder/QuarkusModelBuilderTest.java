@@ -1,4 +1,4 @@
-package io.quarkus.gradle;
+package io.quarkus.gradle.builder;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
@@ -9,7 +9,7 @@ import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.ResolvedModuleVersion;
 import org.junit.jupiter.api.Test;
 
-class AppModelGradleResolverTest {
+class QuarkusModelBuilderTest {
 
     @Test
     void testToAppDependency() {
@@ -18,6 +18,7 @@ class AppModelGradleResolverTest {
         when(version.toString()).thenReturn(":commons-lang3-3.9:");
         when(artifact.getModuleVersion()).thenReturn(version);
         when(artifact.getFile()).thenReturn(Files.currentFolder());
-        assertThatCode(() -> AppModelGradleResolver.toAppDependency(artifact)).doesNotThrowAnyException();
+        assertThatCode(() -> QuarkusModelBuilder.toDependency(artifact, "implementation")).doesNotThrowAnyException();
     }
+
 }
