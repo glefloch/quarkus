@@ -2,6 +2,7 @@ package io.quarkus.bootstrap.resolver.model.impl;
 
 import io.quarkus.bootstrap.resolver.model.ArtifactCoords;
 import java.io.Serializable;
+import java.util.Objects;
 
 public class ArtifactCoordsImpl implements ArtifactCoords, Serializable {
 
@@ -48,5 +49,24 @@ public class ArtifactCoordsImpl implements ArtifactCoords, Serializable {
     @Override
     public String getType() {
         return type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ArtifactCoordsImpl that = (ArtifactCoordsImpl) o;
+        return Objects.equals(groupId, that.groupId) &&
+                Objects.equals(artifactId, that.artifactId) &&
+                Objects.equals(classifier, that.classifier) &&
+                Objects.equals(version, that.version) &&
+                Objects.equals(type, that.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(groupId, artifactId, classifier, version, type);
     }
 }

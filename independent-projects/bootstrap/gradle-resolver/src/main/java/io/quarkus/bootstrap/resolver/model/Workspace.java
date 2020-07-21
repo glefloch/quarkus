@@ -1,16 +1,13 @@
 package io.quarkus.bootstrap.resolver.model;
 
-import java.io.File;
+import java.util.Set;
 
 public interface Workspace {
 
-    ArtifactCoords getArtifactCoords();
+    WorkspaceModule getMainModule();
 
-    File getProjectRoot();
+    Set<WorkspaceModule> getAllModules();
 
-    File getBuildDir();
+    WorkspaceModule getModule(ArtifactCoords key);
 
-    SourceSet getSourceSet();
-
-    SourceSet getSourceSourceSet();
 }

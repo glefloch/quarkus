@@ -6,8 +6,6 @@ public interface QuarkusModel {
 
     Workspace getWorkspace();
 
-    Set<Workspace> getAdditionalWorkspace();
-
     Set<Dependency> getAppDependencies();
 
     Set<Dependency> getExtensionDependencies();

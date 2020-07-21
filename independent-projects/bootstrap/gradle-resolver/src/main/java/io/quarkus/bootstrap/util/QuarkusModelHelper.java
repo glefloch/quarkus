@@ -8,9 +8,10 @@ import io.quarkus.bootstrap.model.AppDependency;
 import io.quarkus.bootstrap.model.AppModel;
 import io.quarkus.bootstrap.model.PathsCollection;
 import io.quarkus.bootstrap.resolver.AppModelResolverException;
+import io.quarkus.bootstrap.resolver.model.ArtifactCoords;
 import io.quarkus.bootstrap.resolver.model.Dependency;
 import io.quarkus.bootstrap.resolver.model.QuarkusModel;
-import io.quarkus.bootstrap.resolver.model.Workspace;
+import io.quarkus.bootstrap.resolver.model.WorkspaceModule;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -44,16 +45,17 @@ public class QuarkusModelHelper {
 
     public static Path serializeAppModel(QuarkusModel model) throws AppModelResolverException, IOException {
         final Path serializedModel = File.createTempFile("quarkus-app-model", ".dat").toPath();
-        AppArtifact appArtifact = new AppArtifact(model.getWorkspace().getArtifactCoords().getGroupId(),
-                model.getWorkspace().getArtifactCoords().getArtifactId(),
-                model.getWorkspace().getArtifactCoords().getVersion());
+        final ArtifactCoords artifactCoords = model.getWorkspace().getMainModule().getArtifactCoords();
+        AppArtifact appArtifact = new AppArtifact(artifactCoords.getGroupId(),
+                artifactCoords.getArtifactId(),
+                artifactCoords.getVersion());
         try (ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(serializedModel))) {
             out.writeObject(QuarkusModelHelper.convert(model, appArtifact));
         }
         return serializedModel;
     }
 
-    public static Path getClassPath(Workspace model) throws BootstrapGradleException {
+    public static Path getClassPath(WorkspaceModule model) throws BootstrapGradleException {
         // TODO handle multiple class directory
         final Optional<Path> classDir = model.getSourceSet().getSourceDirectories().stream().filter(File::exists)
                 .map(File::toPath).findFirst();
@@ -104,10 +106,11 @@ public class QuarkusModelHelper {
 
         if (!appArtifact.isResolved()) {
             PathsCollection.Builder paths = PathsCollection.builder();
-            model.getWorkspace().getSourceSet().getSourceDirectories().stream().filter(File::exists).map(File::toPath)
+            WorkspaceModule module = model.getWorkspace().getMainModule();
+            module.getSourceSet().getSourceDirectories().stream().filter(File::exists).map(File::toPath)
                     .forEach(paths::add);
-            if (model.getWorkspace().getSourceSet().getResourceDirectory().exists()) {
-                paths.add(model.getWorkspace().getSourceSet().getResourceDirectory().toPath());
+            if (module.getSourceSet().getResourceDirectory().exists()) {
+                paths.add(module.getSourceSet().getResourceDirectory().toPath());
             }
             appArtifact.setPaths(paths.build());
         }

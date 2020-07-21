@@ -17,7 +17,7 @@ import io.quarkus.bootstrap.resolver.AppModelResolverException;
 import io.quarkus.bootstrap.resolver.QuarkusGradleModelFactory;
 import io.quarkus.bootstrap.resolver.maven.workspace.LocalProject;
 import io.quarkus.bootstrap.resolver.model.QuarkusModel;
-import io.quarkus.bootstrap.resolver.model.Workspace;
+import io.quarkus.bootstrap.resolver.model.WorkspaceModule;
 import io.quarkus.bootstrap.util.QuarkusModelHelper;
 import io.quarkus.bootstrap.utils.BuildToolHelper;
 
@@ -47,10 +47,13 @@ public class IDEDevModeMain implements BiConsumer<CuratedApplication, Map<String
                 QuarkusModel quarkusModel = QuarkusGradleModelFactory.createForTasks(
                         BuildToolHelper.getBuildFile(appClasses, BuildToolHelper.BuildTool.GRADLE).toFile(),
                         QuarkusModelHelper.DEVMODE_REQUIRED_TASKS);
-                DevModeContext.ModuleInfo root = toModule(quarkusModel.getWorkspace());
+                final WorkspaceModule launchingModule = quarkusModel.getWorkspace().getMainModule();
+                DevModeContext.ModuleInfo root = toModule(quarkusModel.getWorkspace().getMainModule());
                 devModeContext.setApplicationRoot(root);
-                for (Workspace additionalWorkspace : quarkusModel.getAdditionalWorkspace()) {
-                    devModeContext.getAdditionalModules().add(toModule(additionalWorkspace));
+                for (WorkspaceModule additionalModule : quarkusModel.getWorkspace().getAllModules()) {
+                    if (!additionalModule.getArtifactCoords().equals(launchingModule.getArtifactCoords())) {
+                        devModeContext.getAdditionalModules().add(toModule(additionalModule));
+                    }
                 }
             }
 
@@ -62,27 +65,27 @@ public class IDEDevModeMain implements BiConsumer<CuratedApplication, Map<String
                 Collections.singletonMap(DevModeContext.class.getName(), devModeContext));
     }
 
-    private DevModeContext.ModuleInfo toModule(Workspace model) throws BootstrapGradleException {
-        AppArtifactKey key = new AppArtifactKey(model.getArtifactCoords().getGroupId(),
-                model.getArtifactCoords().getArtifactId(), model.getArtifactCoords().getClassifier());
+    private DevModeContext.ModuleInfo toModule(WorkspaceModule module) throws BootstrapGradleException {
+        AppArtifactKey key = new AppArtifactKey(module.getArtifactCoords().getGroupId(),
+                module.getArtifactCoords().getArtifactId(), module.getArtifactCoords().getClassifier());
 
         Set<String> sourceDirectories = new HashSet<>();
         Set<String> sourceParents = new HashSet<>();
-        for (File srcDir : model.getSourceSourceSet().getSourceDirectories()) {
+        for (File srcDir : module.getSourceSourceSet().getSourceDirectories()) {
             sourceDirectories.add(srcDir.getPath());
             sourceParents.add(srcDir.getParent());
         }
 
         return new DevModeContext.ModuleInfo(key,
-                model.getArtifactCoords().getArtifactId(),
-                model.getProjectRoot().getPath(),
+                module.getArtifactCoords().getArtifactId(),
+                module.getProjectRoot().getPath(),
                 sourceDirectories,
-                QuarkusModelHelper.getClassPath(model).toAbsolutePath().toString(),
-                model.getSourceSourceSet().getResourceDirectory().toString(),
-                model.getSourceSet().getResourceDirectory().getPath(),
+                QuarkusModelHelper.getClassPath(module).toAbsolutePath().toString(),
+                module.getSourceSourceSet().getResourceDirectory().toString(),
+                module.getSourceSet().getResourceDirectory().getPath(),
                 sourceParents,
-                model.getBuildDir().toPath().resolve("generated-sources").toAbsolutePath().toString(),
-                model.getBuildDir().toString());
+                module.getBuildDir().toPath().resolve("generated-sources").toAbsolutePath().toString(),
+                module.getBuildDir().toString());
     }
 
     private DevModeContext.ModuleInfo toModule(LocalProject project) {

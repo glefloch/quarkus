@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     implementation project(":runtime")
+    implementation project(":deployment")
     implementation 'io.quarkus:quarkus-resteasy'
 
     testImplementation 'io.quarkus:quarkus-junit5'

@@ -4,7 +4,7 @@ import io.quarkus.bootstrap.app.AdditionalDependency;
 import io.quarkus.bootstrap.app.CuratedApplication;
 import io.quarkus.bootstrap.app.QuarkusBootstrap;
 import io.quarkus.bootstrap.resolver.model.QuarkusModel;
-import io.quarkus.bootstrap.resolver.model.Workspace;
+import io.quarkus.bootstrap.resolver.model.WorkspaceModule;
 import io.quarkus.bootstrap.util.QuarkusModelHelper;
 import io.quarkus.bootstrap.utils.BuildToolHelper;
 import java.nio.file.Path;
@@ -34,15 +34,21 @@ public class IDELauncherImpl {
             if (!BuildToolHelper.isMavenProject(projectRoot)) {
                 final QuarkusModel quarkusModel = BuildToolHelper.enableGradleAppModelForDevMode(projectRoot);
                 // Gradle uses a different output directory for classes, we override the one used by the IDE
-                projectRoot = QuarkusModelHelper.getClassPath(quarkusModel.getWorkspace());
-                for (Workspace additionalWorkspace : quarkusModel.getAdditionalWorkspace()) {
-                    builder.addAdditionalApplicationArchive(new AdditionalDependency(
-                            QuarkusModelHelper.toPathsCollection(additionalWorkspace.getSourceSet().getSourceDirectories()),
-                            true, false));
-                    builder.addAdditionalApplicationArchive(new AdditionalDependency(
-                            additionalWorkspace.getSourceSet().getResourceDirectory().toPath(), true, false));
-                }
+                final WorkspaceModule launchingModule = quarkusModel.getWorkspace().getMainModule();
+                Path launchingModulePath = QuarkusModelHelper.getClassPath(launchingModule);
 
+                builder.setProjectRoot(launchingModulePath)
+                        .setApplicationRoot(launchingModulePath);
+
+                for (WorkspaceModule additionalModule : quarkusModel.getWorkspace().getAllModules()) {
+                    if (!additionalModule.getArtifactCoords().equals(launchingModule.getArtifactCoords())) {
+                        builder.addAdditionalApplicationArchive(new AdditionalDependency(
+                                QuarkusModelHelper.toPathsCollection(additionalModule.getSourceSet().getSourceDirectories()),
+                                true, false));
+                        builder.addAdditionalApplicationArchive(new AdditionalDependency(
+                                additionalModule.getSourceSet().getResourceDirectory().toPath(), true, false));
+                    }
+                }
             }
 
             CuratedApplication app = builder

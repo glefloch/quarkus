@@ -105,8 +105,12 @@ public class AppModelGradleResolver implements AppModelResolver {
 
     @Override
     public AppModel resolveModel(AppArtifact appArtifact) throws AppModelResolverException {
-        if (appModel != null && appModel.getAppArtifact().equals(appArtifact)) {
-            return appModel;
+        if (appModel != null) {
+            if (appModel.getAppArtifact().equals(appArtifact)) {
+                return appModel;
+            } else {
+                throw new AppModelResolverException("Requested artifact does not match loaded model");
+            }
         }
         appModel = QuarkusModelHelper.convert(model, appArtifact);
         return appModel;

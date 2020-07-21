@@ -1,50 +1,38 @@
 package io.quarkus.bootstrap.resolver.model.impl;
 
 import io.quarkus.bootstrap.resolver.model.ArtifactCoords;
-import io.quarkus.bootstrap.resolver.model.SourceSet;
 import io.quarkus.bootstrap.resolver.model.Workspace;
-import java.io.File;
+import io.quarkus.bootstrap.resolver.model.WorkspaceModule;
 import java.io.Serializable;
+import java.util.Set;
 
 public class WorkspaceImpl implements Workspace, Serializable {
 
-    private final ArtifactCoords artifactCoords;
-    private final File projectRoot;
-    private final File buildDir;
-    private final SourceSet sourceSourceSet;
-    private final SourceSet sourceSet;
+    public ArtifactCoords mainModuleKey;
+    public Set<WorkspaceModule> modules;
 
-    public WorkspaceImpl(ArtifactCoords artifactCoords, File projectRoot, File buildDir, SourceSet sourceSourceSet,
-            SourceSet sourceSet) {
-        this.artifactCoords = artifactCoords;
-        this.projectRoot = projectRoot;
-        this.buildDir = buildDir;
-        this.sourceSourceSet = sourceSourceSet;
-        this.sourceSet = sourceSet;
+    public WorkspaceImpl(ArtifactCoords mainModuleKey, Set<WorkspaceModule> modules) {
+        this.mainModuleKey = mainModuleKey;
+        this.modules = modules;
     }
 
     @Override
-    public ArtifactCoords getArtifactCoords() {
-        return artifactCoords;
+    public WorkspaceModule getMainModule() {
+        return getModule(mainModuleKey);
     }
 
     @Override
-    public File getProjectRoot() {
-        return projectRoot;
+    public Set<WorkspaceModule> getAllModules() {
+        return modules;
     }
 
     @Override
-    public File getBuildDir() {
-        return buildDir;
-    }
-
-    @Override
-    public SourceSet getSourceSet() {
-        return sourceSet;
-    }
-
-    @Override
-    public SourceSet getSourceSourceSet() {
-        return sourceSourceSet;
+    public WorkspaceModule getModule(ArtifactCoords key) {
+        for (WorkspaceModule module : modules) {
+            if (module.getArtifactCoords().equals(key)) {
+                return module;
+            }
+        }
+        return null;
     }
 }

@@ -8,6 +8,6 @@ pluginManagement {
         id 'io.quarkus' version '999-SNAPSHOT'
     }
 }
-rootProject.name='simple-module-project'
+rootProject.name='mutli-module-project'
 
 include 'common', 'application'

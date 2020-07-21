@@ -9,16 +9,13 @@ import java.util.Set;
 public class QuarkusModelImpl implements QuarkusModel, Serializable {
 
     private final Workspace workspace;
-    private final Set<Workspace> additionalWorkspaces;
     private final Set<Dependency> appDependencies;
     private final Set<Dependency> extensionDependencies;
 
     public QuarkusModelImpl(Workspace workspace,
-            Set<Workspace> additionalWorkspaces,
             Set<Dependency> appDependencies,
             Set<Dependency> extensionDependencies) {
         this.workspace = workspace;
-        this.additionalWorkspaces = additionalWorkspaces;
         this.appDependencies = appDependencies;
         this.extensionDependencies = extensionDependencies;
     }
@@ -26,11 +23,6 @@ public class QuarkusModelImpl implements QuarkusModel, Serializable {
     @Override
     public Workspace getWorkspace() {
         return workspace;
-    }
-
-    @Override
-    public Set<Workspace> getAdditionalWorkspace() {
-        return additionalWorkspaces;
     }
 
     @Override
