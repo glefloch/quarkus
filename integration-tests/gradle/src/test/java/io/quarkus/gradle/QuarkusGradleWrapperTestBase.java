@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class QuarkusGradleWrapperTestBase extends QuarkusGradleTestBase {
@@ -21,10 +22,13 @@ public class QuarkusGradleWrapperTestBase extends QuarkusGradleTestBase {
         command.add(GRADLE_NO_DAEMON);
         command.add("--stacktrace");
         command.addAll(Arrays.asList(args));
-        Process p = new ProcessBuilder()
+        ProcessBuilder pBuilder = new ProcessBuilder()
                 .directory(projectDir)
-                .command(command)
-                .start();
+                .command(command);
+        final Map<String, String> environment = pBuilder.environment();
+        environment.put("GRADLE_HOME", projectDir.getPath());
+        Process p = pBuilder.start();
+
         p.waitFor(5, TimeUnit.MINUTES);
         return BuildResult.of(p.getInputStream());
     }
