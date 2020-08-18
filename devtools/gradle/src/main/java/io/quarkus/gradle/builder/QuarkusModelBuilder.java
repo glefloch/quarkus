@@ -107,7 +107,7 @@ public class QuarkusModelBuilder implements ParameterizedToolingModelBuilder<Mod
         for (Project subproject : project.getAllprojects()) {
             final Convention convention = subproject.getConvention();
             JavaPluginConvention javaConvention = convention.findPlugin(JavaPluginConvention.class);
-            if (javaConvention == null || !javaConvention.getSourceSets().getNames().contains(SourceSet.MAIN_SOURCE_SET_NAME)) {
+            if (javaConvention == null || javaConvention.getSourceSets().findByName(SourceSet.MAIN_SOURCE_SET_NAME) == null) {
                 continue;
             }
             modules.add(getWorkspaceModule(subproject, mode));
