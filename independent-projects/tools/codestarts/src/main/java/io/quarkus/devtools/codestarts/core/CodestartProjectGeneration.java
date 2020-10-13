@@ -34,9 +34,9 @@ final class CodestartProjectGeneration {
 
         log.debug("processed shared-data: %s" + data);
 
-        final Codestart projectCodestart = projectDefinition.getRequiredCodestart(CodestartType.PROJECT);
-
         final List<CodestartFileStrategy> strategies = buildStrategies(mergeStrategies(projectDefinition));
+
+        projectDefinition.getRequiredCodestart(CodestartType.PROJECT);
 
         log.debug("file strategies: %s", strategies);
 
