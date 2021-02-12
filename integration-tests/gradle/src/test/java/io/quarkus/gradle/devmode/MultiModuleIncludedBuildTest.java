@@ -16,7 +16,7 @@ public class MultiModuleIncludedBuildTest extends QuarkusDevGradleTestBase {
 
     @Override
     protected String[] buildArguments() {
-        return new String[] { "clean", "--include-build", "../external-library", "quarkusDev" };
+        return new String[] { "clean", "quarkusDev" };
     }
 
     @Override

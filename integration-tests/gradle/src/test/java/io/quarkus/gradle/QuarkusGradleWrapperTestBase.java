@@ -25,6 +25,7 @@ public class QuarkusGradleWrapperTestBase extends QuarkusGradleTestBase {
         command.add(GRADLE_NO_DAEMON);
         command.addAll(getSytemProperties());
         command.add("--stacktrace");
+        command.add("--info");
         command.addAll(Arrays.asList(args));
 
         File logOutput = new File(projectDir, "command-output.log");
@@ -41,9 +42,9 @@ public class QuarkusGradleWrapperTestBase extends QuarkusGradleTestBase {
         p.waitFor(5, TimeUnit.MINUTES);
         try (InputStream is = new FileInputStream(logOutput)) {
             final BuildResult commandResult = BuildResult.of(is);
-            if (p.exitValue() != 0) {
-                printCommandOutput(command, commandResult);
-            }
+            // if (p.exitValue() != 0) {
+            printCommandOutput(command, commandResult);
+            //}
             return commandResult;
         }
     }

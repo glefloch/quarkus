@@ -338,9 +338,11 @@ public class QuarkusModelBuilder implements ParameterizedToolingModelBuilder<Mod
             final DependencyImpl dep = initDependency(a);
             if (LaunchMode.DEVELOPMENT.equals(mode) &&
                     a.getId().getComponentIdentifier() instanceof ProjectComponentIdentifier) {
+                project.getLogger().warn("Looking for included build: " + a.getName());
                 Optional<IncludedBuild> includedBuild = includedBuild(project, a.getName());
                 if (includedBuild.isPresent()) {
-                    addSubstitutedProject(dep, includedBuild.get().getProjectDir(), mode);
+                    project.getLogger().warn(a.getName() + " is an included build");
+                    addSubstitutedProject(project, dep, includedBuild.get().getProjectDir(), mode);
                 } else {
                     Project projectDep = project.getRootProject()
                             .findProject(((ProjectComponentIdentifier) a.getId().getComponentIdentifier()).getProjectPath());
@@ -414,12 +416,17 @@ public class QuarkusModelBuilder implements ParameterizedToolingModelBuilder<Mod
         }
     }
 
-    private void addSubstitutedProject(final DependencyImpl dep, File projectFile, LaunchMode mode) {
+    private void addSubstitutedProject(final Project project, final DependencyImpl dep, File projectFile, LaunchMode mode) {
+        project.getLogger().warn("Trying to access " + projectFile.getPath() + " included build project");
         final QuarkusModel quarkusModel = QuarkusGradleModelFactory.create(projectFile, mode.name());
+        project.getLogger().warn(
+                "model of " + quarkusModel.getWorkspace().getMainModule().getArtifactCoords().getArtifactId() + " found");
         final io.quarkus.bootstrap.resolver.model.SourceSet moduleOutput = quarkusModel.getWorkspace().getMainModule()
                 .getSourceSet();
+        project.getLogger().warn("Adding module resources : " + moduleOutput.getResourceDirectory().getPath());
         dep.addPath(moduleOutput.getResourceDirectory());
         for (File sourceDirectory : moduleOutput.getSourceDirectories()) {
+            project.getLogger().warn("Adding module sources : " + sourceDirectory);
             dep.addPath(sourceDirectory);
         }
     }
