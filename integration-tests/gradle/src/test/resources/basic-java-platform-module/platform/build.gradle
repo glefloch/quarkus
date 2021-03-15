@@ -16,6 +16,6 @@ repositories {
 dependencies {
     constraints {
         api enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
-        api 'io.quarkus:quarkus-kubernetes-client'
+        api "io.quarkus:quarkus-resteasy:${quarkusPlatformVersion}"
     }
 }
